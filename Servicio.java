@@ -1,12 +1,17 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.*;
 
 public class Servicio {
     private Map<Boolean, Map<String, Paquete>> paquetes;
     private List<Camion> camiones;
+
+    private HashMap<Camion, ArrayList<Paquete>> solucionBest;
+    private double pesoMin;
+    private int estadoVisitado;
+
+    
 /*
 * Expresar la complejidad temporal del constructor.
     Complejidad = O(n^2)
@@ -17,6 +22,8 @@ public class Servicio {
        createPath(pathCamion, "camion");
        createPath(pathPaquete, "paquete");
     }
+
+
 
     private void createPath(String path, String tipo) {
         String rutaArchivo = path; // Usar la ruta recibida por parámetro
@@ -31,7 +38,7 @@ public class Servicio {
 
                 String[] datos = linea.split(separador);
                 if ("camion".equals(tipo)) {
-                    Camion c = new Camion(Integer.parseInt(datos[0]), datos[1], Boolean.parseBoolean(datos[2]), Integer.parseInt(datos[3]));
+                    Camion c = new Camion(Integer.parseInt(datos[0]), datos[1], Integer.parseInt(datos[2]), Integer.parseInt(datos[3]));
                     this.camiones.add(c);
                 } else {
                     Paquete p = new Paquete(Integer.parseInt(datos[0]), datos[1], Double.parseDouble(datos[2]), Integer.parseInt(datos[3]), Integer.parseInt(datos[4]));
@@ -43,6 +50,8 @@ public class Servicio {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }
     }
+
+
 
     /*
     * Expresar la complejidad temporal del servicio 1.
@@ -58,6 +67,8 @@ public class Servicio {
         return p;
     }
 
+
+
     /*
     * Expresar la complejidad temporal del servicio 2.
         Complejidad = O(1)
@@ -66,7 +77,6 @@ public class Servicio {
         return new LinkedList<Paquete>(this.paquetes.get(contieneAlimentos).values());
     }
 
-
     
     /*
     * Expresar la complejidad temporal del servicio 3.
@@ -74,89 +84,121 @@ public class Servicio {
     */
     public List<Paquete> servicio3(int urgenciaMinima, int urgenciaMaxima) {
         List<Paquete> res = new LinkedList<>();
-        Iterator<Paquete> paquetesTrue = this.paquetes.get(true).values().iterator();
-        Iterator<Paquete> paquetesFalse = this.paquetes.get(false).values().iterator();
+        ArrayList<Paquete> aux = new ArrayList<>(this.paquetes.get(true).values());
+        aux.addAll(this.paquetes.get(false).values());
         
-        while(paquetesTrue.hasNext() || paquetesFalse.hasNext()) {
-            if(paquetesTrue.hasNext()) res.add(paquetesTrue.next());
-            if(paquetesFalse.hasNext()) res.add(paquetesFalse.next());
+        for(Paquete p : aux) {
+            if(p.getLvl_urgencia() >= urgenciaMinima && p.getLvl_urgencia() >= urgenciaMaxima) 
+                aux.add(p);
         }
         return res;
     }
 
-
-    public void addPaquetesCamiones() {
-
-    }
-    private HashMap<Camion, ArrayList<Paquete>> solucion;
-
-
-    private double minimoPesoSinAsignar; 
     
-    public int asignarPaquetes(){
-        HashMap<Camion, ArrayList<Paquete>>asignado = new HashMap<>(); // paquetes asiganos
-        HashMap<Camion, Double> carga = new HashMap<>(); // peso actual de cada camion
+    
+    public int asignarPaquetesBacktracking(){
+        this.solucionBest = new HashMap<>();
+        this.estadoVisitado = 0;
+        HashMap<Camion, ArrayList<Paquete>> asignadoActual = new HashMap<>();
+        HashMap<Camion, Double> cargaActual = new HashMap<>();
+    
+        // Inicializamos la estructura de la solución óptima vacía
+        for (Camion c : camiones) {
+            this.solucionBest.put(c, new ArrayList<>());
+            asignadoActual.put(c, new ArrayList<>());
+            cargaActual.put(c, 0.0);
+        }
 
-        asignarClaves(asignado); 
+        ArrayList<Paquete> listaPaquetes = new ArrayList<>(paquetes.get(true).values());
+        listaPaquetes.addAll(paquetes.get(false).values());
 
-        backtraking(asignado, carga ,new ArrayList<Paquete>(paquetes.values()), 0, pesoSinAsigActual());
+        // Inicialmente, el "mejor peor escenario" es que todos los paquetes se queden abajo
+        this.pesoMin = pesoSinAsigActual(listaPaquetes);
+        backtracking(asignadoActual, cargaActual, listaPaquetes, 0, this.pesoMin);
         
-        return 0;
+        return estadoVisitado;
     }
 
-    private double pesoSinAsigActual() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'pesoSinAsigActual'");
+    private double pesoSinAsigActual(ArrayList<Paquete> arr) {
+        double peso = 0;
+        for(Paquete p : arr) {
+            peso += p.getPeso();
+        }
+        return peso;
     }
 
-    private void asignarClaves(HashMap<Camion, ArrayList<Paquete>> asignado) {
-        Iterator<Camion> it = camiones.iterator();
-        while (it.hasNext()) {
-           asignado.put(it.next(), new ArrayList<>());//o linkedList
-        } 
+    private void backtracking(HashMap<Camion, ArrayList<Paquete>>asignado, HashMap<Camion, Double> carga, ArrayList<Paquete> pack, int index, double pesoActSinAsig) {
+        estadoVisitado++; // Contabilizamos cada estado/llamada del árbol
+
+    // CASO BASE: Ya evaluamos todos los paquetes
+    if (index == pack.size()) {
+        if (pesoActSinAsig < this.pesoMin) {
+            this.pesoMin = pesoActSinAsig;
+            // Clonamos la solución actual a la definitiva
+            for (Camion c : camiones) {
+                this.solucionBest.put(c, new ArrayList<>(asignado.get(c)));
+            }
+        }
+        return;
     }
 
+    Paquete paquete = pack.get(index);
 
-    private void backtraking(HashMap<Camion, ArrayList<Paquete>>asignado,  
-        HashMap<Camion, Double> carga,ArrayList<Paquete> pack, int index, double pesoActSinAsig) {
+    // Opción 1: Intentar meter el paquete en algún camión válido
+    for (Camion camion : camiones) {
+        double cargaCamion = carga.get(camion);
+
+        // Validar restricciones: Capacidad y Cadena de frío
+        if ((cargaCamion + paquete.getPeso()) <= camion.getCapacidad() && 
+            paquete.getContiene_alimentos() == camion.getEsta_refrigerado()) {
             
-        if (pack.size()-1 == index && (this.minimoPesoSinAsignar>pesoActSinAsig) || pesoActSinAsig == 0) {
+            // PASO RECURSIVO (Avanzar)
+            carga.put(camion, cargaCamion + paquete.getPeso());
+            asignado.get(camion).add(paquete);
 
-            Iterator<Camion> it =asignado.keySet().iterator();
-            while (it.hasNext()) {
-                Camion camion=it.next();
-                solucion.put(camion, new ArrayList<>(asignado.get(camion)));
-            }
-            return;
+            backtracking(asignado, carga, pack, index + 1, pesoActSinAsig - paquete.getPeso());
 
-        }
-
-
-        Iterator<Camion> it =asignado.keySet().iterator();
-
-        Paquete paquete = pack.get(index);
-
-        while (it.hasNext()) {
-            Camion camion = it.next();
-            double cargaCamion = carga.get(camion);
-
-            if(camion.getCapacidad()>(cargaCamion + paquete.getPeso()) && 
-            (paquete.getContiene_alimentos() == 1? true:false) == camion.getEsta_refrigerado() ){
-                Double cargaNueva = paquete.getPeso();//obtiene el peso actual del paquete
-
-                carga.put(camion, cargaCamion+cargaNueva);//asigana el peso actual 
-               asignado.get(camion).add(paquete);//asigna el paquete a un camion
-                pesoActSinAsig-=paquete.getPeso();
-
-                backtraking(asignado, carga, pack, index+1, pesoActSinAsig);
-
-                pesoActSinAsig+=paquete.getPeso();
-               asignado.get(camion).remove(paquete);// desasigan del paquete
-                carga.put(camion, cargaCamion); // elimina el peso 
-            }
-        
+            // BACKTRACKING (Deshacer el cambio)
+            asignado.get(camion).remove(asignado.get(camion).size() - 1);
+            carga.put(camion, cargaCamion);
         }
     }
 
+    // Opción 2: Poda/Decisión alternativa -> Dejar el paquete en el suelo y seguir con el próximo
+    // Esto es vital porque puede que un paquete quepa en un camión, pero convenga dejarlo abajo para meter otros más pesados.
+    backtracking(asignado, carga, pack, index + 1, pesoActSinAsig);
+    }
 
+    public int asignarPaquetesGreedy() {
+        HashMap<Camion, Double> carga = new HashMap<>();
+        this.solucionBest = new HashMap<>();
+        this.estadoVisitado = 0;
+
+        for (Camion c : camiones) {
+            this.solucionBest.put(c, new ArrayList<>());
+            carga.put(c, 0.0);
+        }
+
+        ArrayList<Paquete> listaPaquetes = new ArrayList<>(paquetes.get(true).values());
+        listaPaquetes.addAll(paquetes.get(false).values());
+        listaPaquetes.sort((p1, p2) -> Double.compare(p2.getPeso(), p1.getPeso()));
+        this.pesoMin = pesoSinAsigActual(listaPaquetes);
+        
+
+        for(Paquete p : listaPaquetes) {
+
+            for(Camion c : camiones) {
+                estadoVisitado++;
+
+                double cargaActual = carga.get(c);
+
+                if ((cargaActual + p.getPeso()) < c.getCapacidad() && p.getContiene_alimentos() == c.getEsta_refrigerado()) {
+                    solucionBest.get(c).add(p);
+                    carga.put(c, cargaActual + p.getPeso());
+                    break;
+                }
+            }
+        }
+        return estadoVisitado;
+    }
 }

@@ -1,11 +1,11 @@
 public class Camion {
     private int id;
     private String patente;
-    private boolean esta_refrigerado;
+    private int esta_refrigerado;
     private int capacidad;
 
 
-    public Camion(int id, String patente, boolean esta_refrigerado, int capacidad) {
+    public Camion(int id, String patente, int esta_refrigerado, int capacidad) {
         this.id = id;
         this.patente = patente;
         this.esta_refrigerado = esta_refrigerado;
@@ -23,7 +23,7 @@ public class Camion {
     }
 
 
-    public boolean getEsta_refrigerado() {
+    public int getEsta_refrigerado() {
         return esta_refrigerado;
     }
 
