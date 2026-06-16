@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.*;
 
 public class Servicio {
@@ -87,4 +88,75 @@ public class Servicio {
     public void addPaquetesCamiones() {
 
     }
+    private HashMap<Camion, ArrayList<Paquete>> solucion;
+
+
+    private double minimoPesoSinAsignar; 
+    
+    public int asignarPaquetes(){
+        HashMap<Camion, ArrayList<Paquete>>asignado = new HashMap<>(); // paquetes asiganos
+        HashMap<Camion, Double> carga = new HashMap<>(); // peso actual de cada camion
+
+        asignarClaves(asignado); 
+
+        backtraking(asignado, carga ,new ArrayList<Paquete>(paquetes.values()), 0, pesoSinAsigActual());
+        
+        return 0;
+    }
+
+    private double pesoSinAsigActual() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'pesoSinAsigActual'");
+    }
+
+    private void asignarClaves(HashMap<Camion, ArrayList<Paquete>> asignado) {
+        Iterator<Camion> it = camiones.iterator();
+        while (it.hasNext()) {
+           asignado.put(it.next(), new ArrayList<>());//o linkedList
+        } 
+    }
+
+
+    private void backtraking(HashMap<Camion, ArrayList<Paquete>>asignado,  
+        HashMap<Camion, Double> carga,ArrayList<Paquete> pack, int index, double pesoActSinAsig) {
+            
+        if (pack.size()-1 == index && (this.minimoPesoSinAsignar>pesoActSinAsig) || pesoActSinAsig == 0) {
+
+            Iterator<Camion> it =asignado.keySet().iterator();
+            while (it.hasNext()) {
+                Camion camion=it.next();
+                solucion.put(camion, new ArrayList<>(asignado.get(camion)));
+            }
+            return;
+
+        }
+
+
+        Iterator<Camion> it =asignado.keySet().iterator();
+
+        Paquete paquete = pack.get(index);
+
+        while (it.hasNext()) {
+            Camion camion = it.next();
+            double cargaCamion = carga.get(camion);
+
+            if(camion.getCapacidad()>(cargaCamion + paquete.getPeso()) && 
+            (paquete.getContiene_alimentos() == 1? true:false) == camion.getEsta_refrigerado() ){
+                Double cargaNueva = paquete.getPeso();//obtiene el peso actual del paquete
+
+                carga.put(camion, cargaCamion+cargaNueva);//asigana el peso actual 
+               asignado.get(camion).add(paquete);//asigna el paquete a un camion
+                pesoActSinAsig-=paquete.getPeso();
+
+                backtraking(asignado, carga, pack, index+1, pesoActSinAsig);
+
+                pesoActSinAsig+=paquete.getPeso();
+               asignado.get(camion).remove(paquete);// desasigan del paquete
+                carga.put(camion, cargaCamion); // elimina el peso 
+            }
+        
+        }
+    }
+
+
 }
