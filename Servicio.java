@@ -6,9 +6,11 @@ import java.util.*;
 
 public class Servicio {
     private Map<Boolean, Map<String, Paquete>> paquetes;
+
     // private Map<String, Paquete> paquetes;
-    //private ArryList() conAlimentos;
-    //private ArryList() sinAliemntos
+    // private LinkedList<Paquete> conAlimentos;
+    // private LinkedList<Paquete> sinAlimentos;
+    //
     private List<Camion> camiones;
 /*
 * Expresar la complejidad temporal del constructor.
@@ -16,12 +18,8 @@ public class Servicio {
 */
     public Servicio(String pathCamion, String pathPaquete){
         this.paquetes = new HashMap<>();
-        this.paquetes.put(true,  new HashMap<>());  // Para alimentos
-        this.paquetes.put(false,  new HashMap<>()); // Para no alimentos
-
-        //this.conAlimentos = new ArrayList();
-        //this.sinAlimentos = new ArrayList()
-
+        //this.sinAlimentos = new LinkedList<>();
+        //this.conAlimentos = new LinkedList<>();
         this.camiones = new LinkedList<>();
        createPath(pathCamion, "camion");
        createPath(pathPaquete, "paquete");
@@ -44,13 +42,15 @@ public class Servicio {
                     this.camiones.add(c);
                 } else {
                     Paquete p = new Paquete(Integer.parseInt(datos[0]), datos[1], Double.parseDouble(datos[2]), Integer.parseInt(datos[3]), Integer.parseInt(datos[4]));
-                    this.paquetes.get(Integer.parseInt(datos[3]) == 1 ? true : false).put(datos[1], p);
-                    //this.paquetes.put(datos[1], p)
-                    //if(datos[3]) == 1){
-                    //conComida.add(p);
-                    //else{
-                    //sinComida.add(p)
-                    //}
+                    this.paquetes.get((Integer.parseInt(datos[3]) == 1? true: false)).put( datos[1], p);
+                    /*
+                    this.paquetes.put(datos[1], p);
+                    if(Integer.parseInt(datos[3]) == 1){
+                        this.sinAlimentos.add(p);
+                    }else{
+                        this.conAlimentos.add(p);
+                    } 
+                    */
                 }
             }
             
@@ -69,18 +69,24 @@ public class Servicio {
         if (p==null) {
             p = paquetes.get(false).get(codigoPaquete);
         }
+        // return paquetes.get(codigoPaquete);
 
-        return p;
-        //return this.paquetes.get(codigoPaquete)
-    }
+        return p;}
+
+
 
     /*
     * Expresar la complejidad temporal del servicio 2.
         Complejidad = O(1)
     */
     public List<Paquete> servicio2(boolean contieneAlimentos) {
-        return new ArrayList<Paquete>(this.paquetes.get(contieneAlimentos).values());
-        //return new ArrayList<Paquete>(contieneAlimentos? this.conAlimentos:this.sinAliemntos)
+        return new LinkedList<Paquete>(this.paquetes.get(contieneAlimentos).values());
+        /*if(contieneAlimentos){
+            return new LinkedList<Paquete>(this.conAlimentos());
+        }
+        return new LinkedList<Paquete>(this.sinAlimentos());
+        
+        */
     }
 
 
