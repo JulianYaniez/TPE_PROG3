@@ -7,7 +7,10 @@ public class Greedy {
     private int cantCandidatos;
 
     /*
-        Aca deberia de ir una breve explicacion de esta estrategia...
+        Greedy: Ordena los camiones por capacidad descendente y asigna cada paquete 
+        al primer camión que tenga espacio disponible y cumpla con la restricción de 
+        cadena de frío. Si un paquete no cabe en ningún camión, queda sin asignar. 
+        Es rápido pero no garantiza minimizar el peso sin asignar.
     */
     public String asignarPaquetesGreedy(List<Camion> camiones, ArrayList<Paquete> paquetes) {
 
@@ -18,7 +21,11 @@ public class Greedy {
             this.solucionBest.put(c, new ArrayList<>());
             c.setCarga(0.0);
         }
-        paquetes.sort((p1, p2) -> Double.compare(p2.getPeso(), p1.getPeso()));
+
+        camiones.sort((p1, p2) -> Double.compare(p2.getCapacidad(), p1.getCapacidad())); //Ordena de mayor a menor
+        // No existe cambio real entre ordenar los paquetes de mayor a menor o los camiones 
+        // (Los dos tienen la misma cantidad de candidados y los mismos KG de peso no asignado)
+
         this.pesoNoAsignado = pesoSinAsigActual(paquetes);
 
         for(Paquete p : paquetes) {
@@ -30,12 +37,13 @@ public class Greedy {
 
                 if ((cargaActual + p.getPeso()) < c.getCapacidad() && p.getContiene_alimentos() == c.getEsta_refrigerado()) {
                     solucionBest.get(c).add(p);
+                    pesoNoAsignado -= p.getPeso();
                     c.setCarga(cargaActual + p.getPeso());
                     break;
                 }
             }
         }
-        return "Solucion obtenida " + solucionBest + "\n Peso no asignado "  + pesoNoAsignado + "\n cantidad de candidatos " + cantCandidatos;
+        return "Solucion obtenida " + solucionBest + "\n Peso no asignado "  + pesoNoAsignado + "Kg" + "\n cantidad de candidatos " + cantCandidatos;
     }
 
     private double pesoSinAsigActual(ArrayList<Paquete> arr) {
