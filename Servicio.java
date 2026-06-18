@@ -4,7 +4,11 @@ import java.io.IOException;
 import java.util.*;
 
 public class Servicio {
-    private Map<Boolean, Map<String, Paquete>> paquetes;
+    private Map<String, Paquete> paquetes;
+    private LinkedList<Paquete> conAlimentos;
+    private LinkedList<Paquete> sinAlimentos;
+
+    // private Map<Boolean, Map<String, Paquete>> paquetes;
     private List<Camion> camiones;
 
     private HashMap<Camion, ArrayList<Paquete>> solucionBest;
@@ -18,6 +22,8 @@ public class Servicio {
 */
     public Servicio(String pathCamion, String pathPaquete){
         this.paquetes = new HashMap<>();
+        this.conAlimentos= new LinkedList<>();
+        this.conAlimentos= new LinkedList<>();
         this.camiones = new LinkedList<>();
        createPath(pathCamion, "camion");
        createPath(pathPaquete, "paquete");
@@ -42,7 +48,12 @@ public class Servicio {
                     this.camiones.add(c);
                 } else {
                     Paquete p = new Paquete(Integer.parseInt(datos[0]), datos[1], Double.parseDouble(datos[2]), Integer.parseInt(datos[3]), Integer.parseInt(datos[4]));
-                    this.paquetes.get((Integer.parseInt(datos[3]) == 1? true: false)).put( datos[1], p);
+                    this.paquetes.put(datos[1], p);
+                    if (Integer.parseInt(datos[3])==1) {
+                        this.conAlimentos.addLast(p);
+                    }else{
+                        this.sinAlimentos.addLast(p);
+                    }
                 }
             }
             
@@ -58,13 +69,7 @@ public class Servicio {
         Complejidad = O(1)
     */
     public Paquete servicio1(String codigoPaquete) { 
-        Paquete p = null;
-        p = paquetes.get(true).get(codigoPaquete);
-        if (p==null) {
-            p = paquetes.get(false).get(codigoPaquete);
-        }
-
-        return p;
+        return this.paquetes.get(codigoPaquete);
     }
 
 
@@ -74,7 +79,10 @@ public class Servicio {
         Complejidad = O(1)
     */
     public List<Paquete> servicio2(boolean contieneAlimentos) {
-        return new LinkedList<Paquete>(this.paquetes.get(contieneAlimentos).values());
+       if (contieneAlimentos) {
+            return new LinkedList<>(this.conAlimentos);
+       }
+       return new LinkedList<>(this.sinAlimentos);
     }
 
     
@@ -84,12 +92,11 @@ public class Servicio {
     */
     public List<Paquete> servicio3(int urgenciaMinima, int urgenciaMaxima) {
         List<Paquete> res = new LinkedList<>();
-        ArrayList<Paquete> aux = new ArrayList<>(this.paquetes.get(true).values());
-        aux.addAll(this.paquetes.get(false).values());
-        
-        for(Paquete p : aux) {
+        Iterator<Paquete> it = this.paquetes.values().iterator();
+        while (it.hasNext()) {
+            Paquete p = it.next();
             if(p.getLvl_urgencia() >= urgenciaMinima && p.getLvl_urgencia() >= urgenciaMaxima) 
-                aux.add(p);
+                res.add(p);
         }
         return res;
     }
