@@ -7,13 +7,10 @@ public class Servicio {
     private Map<String, Paquete> paquetes;
     private LinkedList<Paquete> conAlimentos;
     private LinkedList<Paquete> sinAlimentos;
-
-    // private Map<Boolean, Map<String, Paquete>> paquetes;
     private List<Camion> camiones;
 
-    private HashMap<Camion, ArrayList<Paquete>> solucionBest;
-    private double pesoMin;
-    private int estadoVisitado;
+    // private Map<Boolean, Map<String, Paquete>> paquetes;
+
 
     
 /*
@@ -22,8 +19,8 @@ public class Servicio {
 */
     public Servicio(String pathCamion, String pathPaquete){
         this.paquetes = new HashMap<>();
-        this.conAlimentos= new LinkedList<>();
-        this.conAlimentos= new LinkedList<>();
+        this.conAlimentos = new LinkedList<>();
+        this.sinAlimentos = new LinkedList<>();
         this.camiones = new LinkedList<>();
        createPath(pathCamion, "camion");
        createPath(pathPaquete, "paquete");
@@ -44,7 +41,7 @@ public class Servicio {
 
                 String[] datos = linea.split(separador);
                 if ("camion".equals(tipo)) {
-                    Camion c = new Camion(Integer.parseInt(datos[0]), datos[1], Integer.parseInt(datos[2]), Integer.parseInt(datos[3]));
+                    Camion c = new Camion(Integer.parseInt(datos[0]), datos[1], Integer.parseInt(datos[2]), Integer.parseInt(datos[3]), 0);
                     this.camiones.add(c);
                 } else {
                     Paquete p = new Paquete(Integer.parseInt(datos[0]), datos[1], Double.parseDouble(datos[2]), Integer.parseInt(datos[3]), Integer.parseInt(datos[4]));
@@ -61,8 +58,6 @@ public class Servicio {
             System.err.println("Error al leer el archivo: " + e.getMessage());
         }
     }
-
-
 
     /*
     * Expresar la complejidad temporal del servicio 1.
@@ -95,117 +90,19 @@ public class Servicio {
         Iterator<Paquete> it = this.paquetes.values().iterator();
         while (it.hasNext()) {
             Paquete p = it.next();
-            if(p.getLvl_urgencia() >= urgenciaMinima && p.getLvl_urgencia() >= urgenciaMaxima) 
+            if(p.getLvl_urgencia() >= urgenciaMinima && p.getLvl_urgencia() <= urgenciaMaxima) {
                 res.add(p);
+            }
         }
         return res;
     }
 
-    
-    
-    public int asignarPaquetesBacktracking(){
-        this.solucionBest = new HashMap<>();
-        this.estadoVisitado = 0;
-        HashMap<Camion, ArrayList<Paquete>> asignadoActual = new HashMap<>();
-        HashMap<Camion, Double> cargaActual = new HashMap<>();
-    
-        // Inicializamos la estructura de la solución óptima vacía
-        for (Camion c : camiones) {
-            this.solucionBest.put(c, new ArrayList<>());
-            asignadoActual.put(c, new ArrayList<>());
-            cargaActual.put(c, 0.0);
-        }
 
-        ArrayList<Paquete> listaPaquetes = new ArrayList<>(paquetes.get(true).values());
-        listaPaquetes.addAll(paquetes.get(false).values());
-
-        // Inicialmente, el "mejor peor escenario" es que todos los paquetes se queden abajo
-        this.pesoMin = pesoSinAsigActual(listaPaquetes);
-        backtracking(asignadoActual, cargaActual, listaPaquetes, 0, this.pesoMin);
-        
-        return estadoVisitado;
+    public String asignarPaquetesBacktracking() {
+        return new Backtracking().asignarPaquetesBacktracking(camiones, new ArrayList<>(paquetes.values()));
     }
 
-    private double pesoSinAsigActual(ArrayList<Paquete> arr) {
-        double peso = 0;
-        for(Paquete p : arr) {
-            peso += p.getPeso();
-        }
-        return peso;
-    }
-
-    private void backtracking(HashMap<Camion, ArrayList<Paquete>>asignado, HashMap<Camion, Double> carga, ArrayList<Paquete> pack, int index, double pesoActSinAsig) {
-        estadoVisitado++; // Contabilizamos cada estado/llamada del árbol
-
-    // CASO BASE: Ya evaluamos todos los paquetes
-    if (index == pack.size()) {
-        if (pesoActSinAsig < this.pesoMin) {
-            this.pesoMin = pesoActSinAsig;
-            // Clonamos la solución actual a la definitiva
-            for (Camion c : camiones) {
-                this.solucionBest.put(c, new ArrayList<>(asignado.get(c)));
-            }
-        }
-        return;
-    }
-
-    Paquete paquete = pack.get(index);
-
-    // Opción 1: Intentar meter el paquete en algún camión válido
-    for (Camion camion : camiones) {
-        double cargaCamion = carga.get(camion);
-
-        // Validar restricciones: Capacidad y Cadena de frío
-        if ((cargaCamion + paquete.getPeso()) <= camion.getCapacidad() && 
-            paquete.getContiene_alimentos() == camion.getEsta_refrigerado()) {
-            
-            // PASO RECURSIVO (Avanzar)
-            carga.put(camion, cargaCamion + paquete.getPeso());
-            asignado.get(camion).add(paquete);
-
-            backtracking(asignado, carga, pack, index + 1, pesoActSinAsig - paquete.getPeso());
-
-            // BACKTRACKING (Deshacer el cambio)
-            asignado.get(camion).remove(asignado.get(camion).size() - 1);
-            carga.put(camion, cargaCamion);
-        }
-    }
-
-    // Opción 2: Poda/Decisión alternativa -> Dejar el paquete en el suelo y seguir con el próximo
-    // Esto es vital porque puede que un paquete quepa en un camión, pero convenga dejarlo abajo para meter otros más pesados.
-    backtracking(asignado, carga, pack, index + 1, pesoActSinAsig);
-    }
-
-    public int asignarPaquetesGreedy() {
-        HashMap<Camion, Double> carga = new HashMap<>();
-        this.solucionBest = new HashMap<>();
-        this.estadoVisitado = 0;
-
-        for (Camion c : camiones) {
-            this.solucionBest.put(c, new ArrayList<>());
-            carga.put(c, 0.0);
-        }
-
-        ArrayList<Paquete> listaPaquetes = new ArrayList<>(paquetes.get(true).values());
-        listaPaquetes.addAll(paquetes.get(false).values());
-        listaPaquetes.sort((p1, p2) -> Double.compare(p2.getPeso(), p1.getPeso()));
-        this.pesoMin = pesoSinAsigActual(listaPaquetes);
-        
-
-        for(Paquete p : listaPaquetes) {
-
-            for(Camion c : camiones) {
-                estadoVisitado++;
-
-                double cargaActual = carga.get(c);
-
-                if ((cargaActual + p.getPeso()) < c.getCapacidad() && p.getContiene_alimentos() == c.getEsta_refrigerado()) {
-                    solucionBest.get(c).add(p);
-                    carga.put(c, cargaActual + p.getPeso());
-                    break;
-                }
-            }
-        }
-        return estadoVisitado;
+    public String asignarPaquetesGreedy() {
+        return new Greedy().asignarPaquetesGreedy(camiones, new ArrayList<>(paquetes.values()));
     }
 }

@@ -18,5 +18,11 @@ public class MainTest {
         for (Paquete paquete : servicio.servicio3(10, 90)) {
             System.out.println(paquete);
         }
+
+        System.out.println("\n--- Asignacion Backtracking ---");
+        System.out.println(servicio.asignarPaquetesBacktracking());
+
+        System.out.println("\n--- Asignacion Greedy ---");
+        System.out.println(servicio.asignarPaquetesGreedy());
     }
 }
