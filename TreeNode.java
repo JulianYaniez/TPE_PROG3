@@ -1,14 +1,15 @@
 
 public class TreeNode<T> {
 
-    private T value;
-    private TreeNode<T> left;
-    private TreeNode<T> right;
+	private T value;
+	private TreeNode<T> left;
+	private TreeNode<T> right;
 
-    public TreeNode(T value) {
-		this.value = value;
+	public TreeNode(T value2) {
+		this.value = value2;
 		this.left = null;
 		this.right = null;
+
 	}
 
 	public TreeNode<T> getLeft() {
@@ -31,8 +32,8 @@ public class TreeNode<T> {
 		return value;
 	}
 
-    public void setValue(T value){
-        this.value=value;
-    }
+	public void setValue(T value){
+		this.value=value;
+	}
     
 }

@@ -2,7 +2,7 @@ import java.util.*;
 
 public class Greedy {
     
-    private HashMap<Camion, ArrayList<Paquete>> solucionBest;
+    private HashMap<Integer, ArrayList<Paquete>> solucionBest;
     private double pesoNoAsignado;
     private int cantCandidatos;
 
@@ -18,7 +18,7 @@ public class Greedy {
         this.cantCandidatos = 0;
 
         for (Camion c : camiones) {
-            this.solucionBest.put(c, new ArrayList<>());
+            this.solucionBest.put(c.getId(), new ArrayList<>());
             c.setCarga(0.0);
         }
 
@@ -30,22 +30,28 @@ public class Greedy {
         this.pesoNoAsignado = pesoSinAsigActual(paquetes);
 
         for(Paquete p : paquetes) {
+            cargarCamiones(camiones, p);
+        }
+        return "Solucion obtenida " + solucionBest + "\n Peso no asignado "  + pesoNoAsignado + "Kg" + "\n cantidad de candidatos " + cantCandidatos;
+    }
 
-            for(Camion c : camiones) {
+    private void cargarCamiones(List<Camion> camiones, Paquete p) {
+        for(Camion c : camiones) {
                 cantCandidatos++;
 
                 double cargaActual = c.getCarga();
 
                 if ((cargaActual + p.getPeso()) < c.getCapacidad() && p.getContiene_alimentos() == c.getEsta_refrigerado()) {
-                    solucionBest.get(c).add(p);
+                    solucionBest.get(c.getId()).add(p);
                     pesoNoAsignado -= p.getPeso();
                     c.setCarga(cargaActual + p.getPeso());
+                    if(c.getCapacidad() == c.getCarga()) {
+                        camiones.remove(c);
+                    }
                     //sacar camion y modulation
                     break;
                 }
             }
-        }
-        return "Solucion obtenida " + solucionBest + "\n Peso no asignado "  + pesoNoAsignado + "Kg" + "\n cantidad de candidatos " + cantCandidatos;
     }
 
     private double pesoSinAsigActual(ArrayList<Paquete> arr) {

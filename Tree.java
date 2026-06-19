@@ -8,11 +8,11 @@ public class Tree <T extends Comparable<T>> {
         this.root = null;
     }
 
-    public void add(T value) {
+    public void add(T p) {
         if (this.root == null) {
-            this.root = new TreeNode<>(value);
+            this.root = new TreeNode<T>(p);
         } else {
-            add(this.root, value);
+            add(this.root, p);
         }
     }
 
@@ -23,7 +23,7 @@ public class Tree <T extends Comparable<T>> {
         if (cmp < 0) {
 
             if (actual.getLeft() == null) {
-                actual.setLeft(new TreeNode<>(value));
+                actual.setLeft(new TreeNode<T>(value));
             } else {
                 add(actual.getLeft(), value);
             }
@@ -31,7 +31,7 @@ public class Tree <T extends Comparable<T>> {
         } else if (cmp > 0) {
 
             if (actual.getRight() == null) {
-                actual.setRight(new TreeNode<>(value));
+                actual.setRight(new TreeNode<T>(value));
             } else {
                 add(actual.getRight(), value);
             }
@@ -39,6 +39,7 @@ public class Tree <T extends Comparable<T>> {
     }
 
     public T getRoot() {
+        if (root == null) return null;
         return root.getValue();
     }
 
@@ -231,4 +232,27 @@ public class Tree <T extends Comparable<T>> {
         getElemAtLevel(current.getLeft(), result, level, currentLevel + 1);
         getElemAtLevel(current.getRight(), result, level, currentLevel + 1);
     }
+
+    public ArrayList<Paquete> rangeSearch(int low, int high) {
+        ArrayList<Paquete> result = new ArrayList<>();
+        rangeSearch((TreeNode<Paquete>) root, result, low, high);
+        return result;
+    }
+
+    private void rangeSearch(TreeNode<Paquete> node, ArrayList<Paquete> result, int low, int high) {
+            
+        if(node == null) return;
+        if( node.getValue().getLvl_urgencia() >= low && node.getValue().getLvl_urgencia() <= high ) {
+            result.add(node.getValue());
+            rangeSearch(node.getLeft(), result, low, high);
+            rangeSearch(node.getRight(), result, low, high);
+        }
+        else if(node.getValue().getLvl_urgencia() < low) {
+            rangeSearch(node.getRight(), result, low, high);
+        }
+        else {
+            rangeSearch(node.getLeft(), result, low, high);
+        }
+    }
+
 }

@@ -1,7 +1,7 @@
 import java.util.*;
 
 public class Backtracking {
-    private HashMap<Camion, ArrayList<Paquete>> solucionBest;
+    private HashMap<Integer, ArrayList<Paquete>> solucionBest;
     private double pesoMin;
     private int estadosGenerados;
     //peso total de paquetes como atributo
@@ -25,7 +25,7 @@ public class Backtracking {
     
         // Inicializamos la estructura de la solución óptima vacía
         for (Camion c : camiones) {
-            this.solucionBest.put(c, new ArrayList<>());
+            this.solucionBest.put(c.getId(), new ArrayList<>());
             asignadoActual.put(c, new ArrayList<>());
             c.setCarga(0.0);
         }
@@ -48,7 +48,7 @@ public class Backtracking {
 
                 // Clonamos la solución actual a la definitiva
                 for (Camion c : camiones) {
-                    this.solucionBest.put(c, new ArrayList<>(asignado.get(c)));
+                    this.solucionBest.put(c.getId(), new ArrayList<>(asignado.get(c)));
                 }
             }
             return;
@@ -73,7 +73,6 @@ public class Backtracking {
                 // BACKTRACKING (Deshacer el cambio)
                 asignado.get(camion).remove(asignado.get(camion).size() - 1);
                 camion.setCarga(cargaCamion);
-                // sacar camion cuando no tenga mas espacio.
             }
         }
     }

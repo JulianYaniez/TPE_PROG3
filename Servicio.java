@@ -22,6 +22,7 @@ public class Servicio {
         this.conAlimentos = new LinkedList<>();
         this.sinAlimentos = new LinkedList<>();
         this.camiones = new LinkedList<>();
+        this.arbolPaquete = new Tree<>();
        createPath(pathCamion, "camion");
        createPath(pathPaquete, "paquete");
     }
@@ -88,18 +89,7 @@ public class Servicio {
     */
    // hacer un arbol.
     public List<Paquete> servicio3(int urgenciaMinima, int urgenciaMaxima) {
-        List<Paquete> res = new LinkedList<>();
-
-
-
-        // Iterator<Paquete> it = this.paquetes.values().iterator();
-        // while (it.hasNext()) {
-        //     Paquete p = it.next();
-        //     if(p.getLvl_urgencia() >= urgenciaMinima && p.getLvl_urgencia() <= urgenciaMaxima) {
-        //         res.add(p);
-        //     }
-        // }
-        return res;
+        return this.arbolPaquete.rangeSearch(urgenciaMinima, urgenciaMaxima);
     }
 
 
