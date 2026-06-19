@@ -4,6 +4,7 @@ public class Backtracking {
     private HashMap<Camion, ArrayList<Paquete>> solucionBest;
     private double pesoMin;
     private int estadosGenerados;
+    //peso total de paquetes como atributo
 
 
     /*
@@ -66,11 +67,13 @@ public class Backtracking {
                 // PASO RECURSIVO (Avanzar)
                 camion.setCarga(cargaCamion + paquete.getPeso());
                 asignado.get(camion).add(paquete);
+
                 backtracking(camiones, asignado, pack, index + 1, pesoActSinAsig - paquete.getPeso());
 
                 // BACKTRACKING (Deshacer el cambio)
                 asignado.get(camion).remove(asignado.get(camion).size() - 1);
                 camion.setCarga(cargaCamion);
+                // sacar camion cuando no tenga mas espacio.
             }
         }
     }

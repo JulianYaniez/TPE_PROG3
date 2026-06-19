@@ -8,7 +8,7 @@ public class Servicio {
     private LinkedList<Paquete> conAlimentos;
     private LinkedList<Paquete> sinAlimentos;
     private List<Camion> camiones;
-
+    private Tree<Paquete> arbolPaquete;
     // private Map<Boolean, Map<String, Paquete>> paquetes;
 
 
@@ -46,6 +46,7 @@ public class Servicio {
                 } else {
                     Paquete p = new Paquete(Integer.parseInt(datos[0]), datos[1], Double.parseDouble(datos[2]), Integer.parseInt(datos[3]), Integer.parseInt(datos[4]));
                     this.paquetes.put(datos[1], p);
+                    this.arbolPaquete.add(p);
                     if (Integer.parseInt(datos[3])==1) {
                         this.conAlimentos.addLast(p);
                     }else{
@@ -85,15 +86,19 @@ public class Servicio {
     * Expresar la complejidad temporal del servicio 3.
         Complejidad = O(n)
     */
+   // hacer un arbol.
     public List<Paquete> servicio3(int urgenciaMinima, int urgenciaMaxima) {
         List<Paquete> res = new LinkedList<>();
-        Iterator<Paquete> it = this.paquetes.values().iterator();
-        while (it.hasNext()) {
-            Paquete p = it.next();
-            if(p.getLvl_urgencia() >= urgenciaMinima && p.getLvl_urgencia() <= urgenciaMaxima) {
-                res.add(p);
-            }
-        }
+
+
+
+        // Iterator<Paquete> it = this.paquetes.values().iterator();
+        // while (it.hasNext()) {
+        //     Paquete p = it.next();
+        //     if(p.getLvl_urgencia() >= urgenciaMinima && p.getLvl_urgencia() <= urgenciaMaxima) {
+        //         res.add(p);
+        //     }
+        // }
         return res;
     }
 

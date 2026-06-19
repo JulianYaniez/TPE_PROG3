@@ -1,4 +1,4 @@
-public class Paquete {
+public class Paquete implements Comparable<Paquete> {
     private int id;
     private String codigo;
     private double peso;
@@ -38,5 +38,12 @@ public class Paquete {
         return " Paquete [ getId =" + getId() + ", getCodigo =" + getCodigo() + ", getPeso =" + getPeso()
                 + ", getContiene_alimentos =" + getContiene_alimentos() + ", getLvl_urgencia =" + getLvl_urgencia()
                 + " ]";
+    }
+
+    @Override
+    public int compareTo(Paquete o) {
+        Paquete aux = (Paquete) o;
+        return Integer.compare(this.lvl_urgencia,aux.getLvl_urgencia() );
+
     }
 }

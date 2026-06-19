@@ -23,6 +23,7 @@ public class Greedy {
         }
 
         camiones.sort((p1, p2) -> Double.compare(p2.getCapacidad(), p1.getCapacidad())); //Ordena de mayor a menor
+        paquetes.sort((p1,p2)->Double.compare(p2.getPeso(), p1.getPeso()));
         // No existe cambio real entre ordenar los paquetes de mayor a menor o los camiones 
         // (Los dos tienen la misma cantidad de candidados y los mismos KG de peso no asignado)
 
@@ -39,6 +40,7 @@ public class Greedy {
                     solucionBest.get(c).add(p);
                     pesoNoAsignado -= p.getPeso();
                     c.setCarga(cargaActual + p.getPeso());
+                    //sacar camion y modulation
                     break;
                 }
             }
