@@ -3,21 +3,19 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
-public class Servicio {
+public class Servicios {
     private Map<String, Paquete> paquetes;
     private LinkedList<Paquete> conAlimentos;
     private LinkedList<Paquete> sinAlimentos;
     private List<Camion> camiones;
     private Tree<Paquete> arbolPaquete;
-    // private Map<Boolean, Map<String, Paquete>> paquetes;
-
-
     
+
 /*
 * Expresar la complejidad temporal del constructor.
-    Complejidad = O(n^2)
+    Complejidad = O(n)
 */
-    public Servicio(String pathCamion, String pathPaquete){
+    public Servicios(String pathCamion, String pathPaquete){
         this.paquetes = new HashMap<>();
         this.conAlimentos = new LinkedList<>();
         this.sinAlimentos = new LinkedList<>();
@@ -76,10 +74,7 @@ public class Servicio {
         Complejidad = O(1)
     */
     public List<Paquete> servicio2(boolean contieneAlimentos) {
-       if (contieneAlimentos) {
-            return new LinkedList<>(this.conAlimentos);
-       }
-       return new LinkedList<>(this.sinAlimentos);
+       return contieneAlimentos ? this.conAlimentos : this.sinAlimentos;
     }
 
     

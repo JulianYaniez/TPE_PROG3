@@ -3,7 +3,7 @@ public class MainTest {
         String pathCamion = "camion.csv";
         String pathPaquete = "paquete.csv";
 
-        Servicio servicio = new Servicio(pathCamion, pathPaquete);
+        Servicios servicio = new Servicios(pathCamion, pathPaquete);
 
         System.out.println("--- Servicio 1: buscar paquete P002 ---");
         Paquete p = servicio.servicio1("P002");

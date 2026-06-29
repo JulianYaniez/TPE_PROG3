@@ -60,7 +60,13 @@ public class Backtracking {
         for (Camion camion : camiones) {
             double cargaCamion = camion.getCarga();
 
+            /*
+                if(cargaCamion + paquete.getPeso() > camion.getCapacidad()) return; // PODA (no cabe en el camion)
+            */
+
             // Validar restricciones: Capacidad y Cadena de frío
+
+            /*Esta parte del if deberia de sacarse y quedarse solamente despues del AND */
             if ((cargaCamion + paquete.getPeso()) <= camion.getCapacidad() && 
                 paquete.getContiene_alimentos() == camion.getEsta_refrigerado()) {
                 
