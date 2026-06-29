@@ -83,7 +83,7 @@ public class Servicios {
         Complejidad = O(n)
     */
    // hacer un arbol.
-    public List<Paquete> servicio3(int urgenciaMinima, int urgenciaMaxima) {
+    public List<Paquete> servicio3 (int urgenciaMinima, int urgenciaMaxima) {
         return this.arbolPaquete.rangeSearch(urgenciaMinima, urgenciaMaxima);
     }
 

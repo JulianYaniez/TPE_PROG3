@@ -58,29 +58,26 @@ public class Backtracking {
 
         // Opción 1: Intentar meter el paquete en algún camión válido
         for (Camion camion : camiones) {
+
             double cargaCamion = camion.getCarga();
-
-            /*
-                if(cargaCamion + paquete.getPeso() > camion.getCapacidad()) return; // PODA (no cabe en el camion)
-            */
-
-            // Validar restricciones: Capacidad y Cadena de frío
-
-            /*Esta parte del if deberia de sacarse y quedarse solamente despues del AND */
-            if ((cargaCamion + paquete.getPeso()) <= camion.getCapacidad() && 
-                paquete.getContiene_alimentos() == camion.getEsta_refrigerado()) {
+                        
+            if(cargaCamion + paquete.getPeso() <= camion.getCapacidad()) {
                 
-                // PASO RECURSIVO (Avanzar)
-                camion.setCarga(cargaCamion + paquete.getPeso());
-                asignado.get(camion).add(paquete);
+                if (paquete.getContiene_alimentos() == camion.getEsta_refrigerado()) {
 
-                backtracking(camiones, asignado, pack, index + 1, pesoActSinAsig - paquete.getPeso());
+                    // PASO RECURSIVO (Avanzar)
+                    camion.setCarga(cargaCamion + paquete.getPeso());
+                    asignado.get(camion).add(paquete);
 
-                // BACKTRACKING (Deshacer el cambio)
-                asignado.get(camion).remove(asignado.get(camion).size() - 1);
-                camion.setCarga(cargaCamion);
+                    backtracking(camiones, asignado, pack, index + 1, pesoActSinAsig - paquete.getPeso());
+
+                    // BACKTRACKING (Deshacer el cambio)
+                    asignado.get(camion).remove(asignado.get(camion).size() - 1);
+                    camion.setCarga(cargaCamion);
+                }
             }
         }
+        backtracking(camiones, asignado, pack, index + 1, pesoActSinAsig);
     }
 
     private double pesoSinAsigActual(Iterator<Paquete> paquetes) {
